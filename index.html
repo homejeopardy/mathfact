@@ -5,17 +5,40 @@
   <title>Daily Math Fact</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
+    :root {
+      --bg: #f4f4f4;
+      --text: #222;
+      --card: #fff;
+    }
+    [data-theme="dark"] {
+      --bg: #1c1c1c;
+      --text: #eee;
+      --card: #2c2c2c;
+    }
+
     body {
       margin: 0;
       font-family: system-ui, sans-serif;
-      background: #f4f4f4;
-      color: #222;
+      background: var(--bg);
+      color: var(--text);
     }
     header {
       background: #2e3a59;
       color: white;
       padding: 1em;
       text-align: center;
+      position: relative;
+    }
+    #dark-toggle {
+      position: absolute;
+      right: 1em;
+      top: 1em;
+      cursor: pointer;
+      background: white;
+      border: none;
+      border-radius: 6px;
+      padding: 0.25em 0.5em;
+      font-size: 0.9em;
     }
     main {
       display: flex;
@@ -45,16 +68,46 @@
       gap: 1em;
       justify-content: center;
     }
-    .archive-grid img {
-      width: 150px;
+    .archive-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: var(--card);
+      padding: 0.5em;
+      border-radius: 8px;
+      width: 160px;
+    }
+    .archive-item img {
+      width: 140px;
       height: auto;
       object-fit: contain;
       border-radius: 6px;
       cursor: pointer;
       transition: transform 0.2s;
     }
-    .archive-grid img:hover {
+    .archive-item img:hover {
       transform: scale(1.05);
+    }
+    .archive-item a {
+      margin-top: 0.4em;
+      font-size: 0.8em;
+      color: var(--text);
+      text-decoration: none;
+      border: 1px solid #aaa;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    .archive-item a:hover {
+      background: #ddd;
+    }
+
+    #search {
+      padding: 0.5em;
+      font-size: 1em;
+      margin-bottom: 1em;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      width: 250px;
     }
 
     /* Modal */
@@ -79,6 +132,7 @@
 <body>
   <header>
     <h1>📘 Daily Math Fact</h1>
+    <button id="dark-toggle">🌙</button>
   </header>
   <main>
     <section class="today">
@@ -90,6 +144,7 @@
 
     <section class="archive">
       <h2>📚 Archive</h2>
+      <input id="search" type="text" placeholder="Search date (e.g. 2025-06)">
       <div class="archive-grid" id="archive-grid"></div>
     </section>
   </main>
@@ -102,22 +157,25 @@
   <script>
     const todayEl = document.getElementById("today-fact");
     const archiveEl = document.getElementById("archive-grid");
+    const searchInput = document.getElementById("search");
     const modal = document.getElementById("modal");
     const modalImg = document.getElementById("modal-img");
+    const darkToggle = document.getElementById("dark-toggle");
+
+    const extensions = ['jpg', 'png', 'webp'];
+    const startDate = new Date("2024-01-01");
+    const today = new Date();
+    let archiveItems = [];
 
     function getTodayDateString() {
-      const today = new Date();
       const yyyy = today.getFullYear();
       const mm = String(today.getMonth() + 1).padStart(2, '0');
       const dd = String(today.getDate()).padStart(2, '0');
       return `${yyyy}-${mm}-${dd}`;
     }
 
-    const extensions = ['jpg', 'png', 'webp'];
-
     async function loadTodayFact() {
       const dateStr = getTodayDateString();
-
       for (const ext of extensions) {
         const url = `facts/${dateStr}.${ext}`;
         try {
@@ -126,16 +184,10 @@
             todayEl.innerHTML = `<img src="${url}" alt="Math Fact for ${dateStr}">`;
             return;
           }
-        } catch (err) {
-          console.error(err);
-        }
+        } catch {}
       }
-
       todayEl.innerHTML = `<p>No math fact uploaded for today (${dateStr}).</p>`;
     }
-
-    const startDate = new Date("2024-01-01");
-    const today = new Date();
 
     function formatDate(date) {
       return date.toISOString().split("T")[0];
@@ -149,18 +201,36 @@
           try {
             const res = await fetch(url, { method: 'HEAD' });
             if (res.ok) {
-              const img = document.createElement('img');
-              img.src = url;
-              img.alt = `Fact for ${dateStr}`;
-              img.title = dateStr;
-              img.addEventListener('click', () => openModal(url));
-              archiveEl.appendChild(img);
+              archiveItems.push({ date: dateStr, url });
               break;
             }
-          } catch (e) {
-            console.warn(e);
-          }
+          } catch {}
         }
+      }
+      renderArchive();
+    }
+
+    function renderArchive() {
+      archiveEl.innerHTML = '';
+      const query = searchInput.value.toLowerCase();
+      const filtered = archiveItems.filter(item => item.date.includes(query));
+      for (const { date, url } of filtered.reverse()) {
+        const item = document.createElement('div');
+        item.className = 'archive-item';
+        const img = document.createElement('img');
+        img.src = url;
+        img.alt = date;
+        img.title = date;
+        img.addEventListener('click', () => openModal(url));
+
+        const dl = document.createElement('a');
+        dl.href = url;
+        dl.download = `${date}.jpg`;
+        dl.textContent = 'Download';
+
+        item.appendChild(img);
+        item.appendChild(dl);
+        archiveEl.appendChild(item);
       }
     }
 
@@ -175,8 +245,13 @@
     }
 
     modal.addEventListener('click', closeModal);
-    window.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') closeModal();
+    window.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+    searchInput.addEventListener('input', renderArchive);
+
+    darkToggle.addEventListener('click', () => {
+      const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+      document.documentElement.setAttribute('data-theme', dark ? 'light' : 'dark');
+      darkToggle.textContent = dark ? '🌙' : '☀️';
     });
 
     loadTodayFact();
