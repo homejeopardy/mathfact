@@ -50,10 +50,29 @@
       height: auto;
       object-fit: contain;
       border-radius: 6px;
+      cursor: pointer;
       transition: transform 0.2s;
     }
     .archive-grid img:hover {
       transform: scale(1.05);
+    }
+
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 999;
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+      background-color: rgba(0, 0, 0, 0.9);
+      justify-content: center;
+      align-items: center;
+    }
+    .modal img {
+      max-width: 95%;
+      max-height: 95%;
+      border-radius: 8px;
+      box-shadow: 0 0 20px rgba(255,255,255,0.3);
     }
   </style>
 </head>
@@ -75,11 +94,17 @@
     </section>
   </main>
 
+  <!-- Fullscreen Modal -->
+  <div class="modal" id="modal">
+    <img id="modal-img" src="" alt="Full image">
+  </div>
+
   <script>
     const todayEl = document.getElementById("today-fact");
     const archiveEl = document.getElementById("archive-grid");
+    const modal = document.getElementById("modal");
+    const modalImg = document.getElementById("modal-img");
 
-    // Helper to get today's date in YYYY-MM-DD
     function getTodayDateString() {
       const today = new Date();
       const yyyy = today.getFullYear();
@@ -88,10 +113,8 @@
       return `${yyyy}-${mm}-${dd}`;
     }
 
-    // File extensions to try
     const extensions = ['jpg', 'png', 'webp'];
 
-    // Load today's image
     async function loadTodayFact() {
       const dateStr = getTodayDateString();
 
@@ -111,8 +134,7 @@
       todayEl.innerHTML = `<p>No math fact uploaded for today (${dateStr}).</p>`;
     }
 
-    // Load archive (static dates)
-    const startDate = new Date("2024-01-01"); // adjust to your archive start
+    const startDate = new Date("2024-01-01");
     const today = new Date();
 
     function formatDate(date) {
@@ -131,6 +153,7 @@
               img.src = url;
               img.alt = `Fact for ${dateStr}`;
               img.title = dateStr;
+              img.addEventListener('click', () => openModal(url));
               archiveEl.appendChild(img);
               break;
             }
@@ -140,6 +163,21 @@
         }
       }
     }
+
+    function openModal(src) {
+      modal.style.display = "flex";
+      modalImg.src = src;
+    }
+
+    function closeModal() {
+      modal.style.display = "none";
+      modalImg.src = "";
+    }
+
+    modal.addEventListener('click', closeModal);
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeModal();
+    });
 
     loadTodayFact();
     loadArchive();
