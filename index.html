@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="icon" href="favicon.ico" type="image/x-icon">
   <meta charset="UTF-8">
   <title>Daily Math Fact</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
   <style>
     :root {
       --bg: #f4f4f4;
@@ -16,7 +16,6 @@
       --text: #eee;
       --card: #2c2c2c;
     }
-
     body {
       margin: 0;
       font-family: system-ui, sans-serif;
@@ -50,18 +49,16 @@
     h2 {
       margin-bottom: 0.5em;
     }
-    .today, .archive {
-      margin: 2em 0;
+    section {
       width: 90%;
       max-width: 800px;
       text-align: center;
+      margin-bottom: 3em;
     }
     img {
       max-width: 100%;
       height: auto;
-      border: 1px solid #ccc;
       border-radius: 8px;
-      margin-top: 1em;
     }
     .archive-grid {
       display: flex;
@@ -70,24 +67,19 @@
       justify-content: center;
     }
     .archive-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
       background: var(--card);
       padding: 0.5em;
       border-radius: 8px;
       width: 160px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
     }
     .archive-item img {
       width: 140px;
-      height: auto;
-      object-fit: contain;
-      border-radius: 6px;
       cursor: pointer;
-      transition: transform 0.2s;
-    }
-    .archive-item img:hover {
-      transform: scale(1.05);
+      border-radius: 6px;
     }
     .archive-item a {
       margin-top: 0.4em;
@@ -101,7 +93,6 @@
     .archive-item a:hover {
       background: #ddd;
     }
-
     #search {
       padding: 0.5em;
       font-size: 1em;
@@ -110,8 +101,6 @@
       border: 1px solid #ccc;
       width: 250px;
     }
-
-    /* Modal */
     .modal {
       display: none;
       position: fixed;
@@ -128,6 +117,16 @@
       border-radius: 8px;
       box-shadow: 0 0 20px rgba(255,255,255,0.3);
     }
+    .coming-soon {
+      position: absolute;
+      top: 5px;
+      left: 5px;
+      background: #e74c3c;
+      color: white;
+      padding: 2px 6px;
+      font-size: 0.7em;
+      border-radius: 4px;
+    }
   </style>
 </head>
 <body>
@@ -139,7 +138,7 @@
     <section class="today">
       <h2>Today’s Fact</h2>
       <div id="today-fact">
-        <p>Loading today’s fact...</p>
+        <p>Loading...</p>
       </div>
     </section>
 
@@ -150,71 +149,71 @@
     </section>
 
     <section class="submit">
-  <h2>✍️ Submit Your Own Math Fact</h2>
-  <p>Have a cool math fact to share? Create your own and submit it here:</p>
-  <a href="https://forms.gle/ccBNzxmvXLmNEjKKA" target="_blank" style="display:inline-block; margin-top: 1em; padding: 0.5em 1em; background: #2e3a59; color: white; border-radius: 6px; text-decoration: none;">Submit via Google Form</a>
+      <h2>✍️ Submit Your Own</h2>
+      <p>Have a cool math fact to share?</p>
+      <a href="https://forms.gle/YOUR_FORM_LINK" target="_blank"
+         style="display:inline-block; margin-top: 1em; padding: 0.5em 1em; background: #2e3a59; color: white; border-radius: 6px; text-decoration: none;">
+         Submit via Google Form
+      </a>
     </section>
   </main>
 
-  <!-- Fullscreen Modal -->
   <div class="modal" id="modal">
     <img id="modal-img" src="" alt="Full image">
   </div>
 
   <script>
-    const todayEl = document.getElementById("today-fact");
+    // START CONFIG
+    const ARCHIVE_START_DATE = "2025-06-01";
+    const extensions = ["jpg", "png", "webp"];
+    const submitFormLink = "https://forms.gle/YOUR_FORM_LINK";
+    // END CONFIG
+
+    const today = new Date();
+    const startDate = new Date(ARCHIVE_START_DATE);
     const archiveEl = document.getElementById("archive-grid");
+    const todayEl = document.getElementById("today-fact");
     const searchInput = document.getElementById("search");
     const modal = document.getElementById("modal");
     const modalImg = document.getElementById("modal-img");
     const darkToggle = document.getElementById("dark-toggle");
-
-    const extensions = ['jpg', 'png', 'webp'];
-    // Set the first date for archive (YYYY-MM-DD)
-    const ARCHIVE_START_DATE = "2025-06-11";
-    const startDate = new Date(ARCHIVE_START_DATE);
-
-    const today = new Date();
     let archiveItems = [];
-
-    function getTodayDateString() {
-      const yyyy = today.getFullYear();
-      const mm = String(today.getMonth() + 1).padStart(2, '0');
-      const dd = String(today.getDate()).padStart(2, '0');
-      return `${yyyy}-${mm}-${dd}`;
-    }
-
-    async function loadTodayFact() {
-      const dateStr = getTodayDateString();
-      for (const ext of extensions) {
-        const url = `facts/${dateStr}.${ext}`;
-        try {
-          const res = await fetch(url, { method: 'HEAD' });
-          if (res.ok) {
-            todayEl.innerHTML = `<img src="${url}" alt="Math Fact for ${dateStr}">`;
-            return;
-          }
-        } catch {}
-      }
-      todayEl.innerHTML = `<p>No math fact uploaded for today (${dateStr}).</p>`;
-    }
 
     function formatDate(date) {
       return date.toISOString().split("T")[0];
     }
 
+    function getTodayDateString() {
+      return formatDate(today);
+    }
+
+    async function fetchImageForDate(dateStr) {
+      for (const ext of extensions) {
+        const url = `facts/${dateStr}.${ext}`;
+        try {
+          const res = await fetch(url, { method: 'HEAD' });
+          if (res.ok) return url;
+        } catch {}
+      }
+      return null;
+    }
+
+    async function loadTodayFact() {
+      const dateStr = getTodayDateString();
+      const url = await fetchImageForDate(dateStr);
+      if (url) {
+        todayEl.innerHTML = `<img src="${url}" alt="Math Fact for ${dateStr}">`;
+      } else {
+        todayEl.innerHTML = `<p>No math fact uploaded for today (${dateStr}).</p>`;
+      }
+    }
+
     async function loadArchive() {
-      for (let d = new Date(startDate); d < today; d.setDate(d.getDate() + 1)) {
+      for (let d = new Date(startDate); d <= today; d.setDate(d.getDate() + 1)) {
         const dateStr = formatDate(d);
-        for (const ext of extensions) {
-          const url = `facts/${dateStr}.${ext}`;
-          try {
-            const res = await fetch(url, { method: 'HEAD' });
-            if (res.ok) {
-              archiveItems.push({ date: dateStr, url });
-              break;
-            }
-          } catch {}
+        const url = await fetchImageForDate(dateStr);
+        if (url) {
+          archiveItems.push({ date: dateStr, url, future: dateStr > getTodayDateString() });
         }
       }
       renderArchive();
@@ -224,7 +223,7 @@
       archiveEl.innerHTML = '';
       const query = searchInput.value.toLowerCase();
       const filtered = archiveItems.filter(item => item.date.includes(query));
-      for (const { date, url } of filtered.reverse()) {
+      for (const { date, url, future } of filtered.reverse()) {
         const item = document.createElement('div');
         item.className = 'archive-item';
         const img = document.createElement('img');
@@ -237,6 +236,13 @@
         dl.href = url;
         dl.download = `${date}.jpg`;
         dl.textContent = 'Download';
+
+        if (future) {
+          const tag = document.createElement('div');
+          tag.className = 'coming-soon';
+          tag.textContent = 'Coming Soon';
+          item.appendChild(tag);
+        }
 
         item.appendChild(img);
         item.appendChild(dl);
@@ -264,6 +270,7 @@
       darkToggle.textContent = dark ? '🌙' : '☀️';
     });
 
+    // Start!
     loadTodayFact();
     loadArchive();
   </script>
