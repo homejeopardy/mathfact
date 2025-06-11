@@ -2,155 +2,147 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Weekly Schedule</title>
+  <title>Daily Math Fact</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-      background: #fff;
-      color: #000;
+      margin: 0;
+      font-family: system-ui, sans-serif;
+      background: #f4f4f4;
+      color: #222;
     }
-    h1 {
+    header {
+      background: #2e3a59;
+      color: white;
+      padding: 1em;
       text-align: center;
     }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      table-layout: fixed;
+    main {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2em;
     }
-    th, td {
-      border: 1px solid #aaa;
+    h2 {
+      margin-bottom: 0.5em;
+    }
+    .today, .archive {
+      margin: 2em 0;
+      width: 90%;
+      max-width: 800px;
       text-align: center;
-      padding: 10px;
-      vertical-align: middle;
     }
-    th {
-      background: #e0e0e0;
+    img {
+      max-width: 100%;
+      height: auto;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      margin-top: 1em;
     }
-    .subject {
-      font-weight: bold;
-      color: #000;
+    .archive-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1em;
+      justify-content: center;
     }
-    .orange { background: #f9b26f; }
-    .blue { background: #b3d9ff; }
-    .green { background: #b6e3a5; }
-    .lavender { background: #d7c3f2; }
-    .pink { background: #eac1dc; }
-    .teal { background: #b5e4e1; }
-    .gray { background: #dddddd; }
-    .summer-break {
-      background: red;
-      color: black;
-      writing-mode: vertical-rl;
-      text-align: center;
-      font-weight: bold;
-      font-size: 24px;
-      letter-spacing: 5px;
+    .archive-grid img {
+      width: 150px;
+      height: auto;
+      object-fit: contain;
+      border-radius: 6px;
+      transition: transform 0.2s;
     }
-    .noon-release {
-      background: red;
-      color: yellow;
-      font-weight: bold;
+    .archive-grid img:hover {
+      transform: scale(1.05);
     }
   </style>
 </head>
 <body>
-  <h1>Weekly Schedule</h1>
-  <table>
-    <tr>
-      <th>Monday, June 2, 2025</th>
-      <th>Tuesday, June 3, 2025</th>
-      <th>Wednesday, June 4, 2025<br><small>Singing and Math</small></th>
-      <th>Thursday, June 5, 2025<br><small>Performance</small></th>
-      <th>Friday, June 6, 2025<br><small>Performance</small></th>
-      <th>Weekend, June 7–8, 2025</th>
-    </tr>
+  <header>
+    <h1>📘 Daily Math Fact</h1>
+  </header>
+  <main>
+    <section class="today">
+      <h2>Today’s Fact</h2>
+      <div id="today-fact">
+        <p>Loading today’s fact...</p>
+      </div>
+    </section>
 
-    <tr>
-      <td class="orange subject">Spanish – A103</td>
-      <td class="blue subject">English – F103</td>
-      <td class="blue subject">English – F103</td>
-      <td class="pink subject">Advisory – F103</td>
-      <td rowspan="9" class="summer-break">SUMMER BREAK</td>
-      <td rowspan="9" class="gray">Notes:</td>
-    </tr>
-    <tr>
-      <td>Not Assigned</td>
-      <td>Not Assigned</td>
-      <td>Not Assigned</td>
-      <td>Not Assigned</td>
-    </tr>
+    <section class="archive">
+      <h2>📚 Archive</h2>
+      <div class="archive-grid" id="archive-grid"></div>
+    </section>
+  </main>
 
-    <tr>
-      <td class="green subject">Math – A102</td>
-      <td class="lavender subject">Science – Q2</td>
-      <td class="pink subject">The Giver Movie – A103</td>
-      <td class="pink subject">Promotion – Yard</td>
-    </tr>
-    <tr>
-      <td>Not Assigned</td>
-      <td>Not Assigned</td>
-      <td>Not Assigned</td>
-      <td>Not Assigned</td>
-    </tr>
+  <script>
+    const todayEl = document.getElementById("today-fact");
+    const archiveEl = document.getElementById("archive-grid");
 
-    <tr>
-      <td class="blue subject">English – F103</td>
-      <td class="green subject">Math – A102</td>
-      <td class="pink subject">Games Day – James Kenney Park</td>
-      <td class="pink subject">Step Up Day</td>
-    </tr>
-    <tr>
-      <td>Not Assigned</td>
-      <td>Not Assigned</td>
-      <td>Not Assigned</td>
-      <td>Not Assigned</td>
-    </tr>
+    // Helper to get today's date in YYYY-MM-DD
+    function getTodayDateString() {
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, '0');
+      const dd = String(today.getDate()).padStart(2, '0');
+      return `${yyyy}-${mm}-${dd}`;
+    }
 
-    <tr>
-      <td class="pink subject">Drama – F101</td>
-      <td class="orange subject">Spanish – F103</td>
-      <td></td>
-      <td class="pink subject">Yearbook Signing and Dance Party</td>
-    </tr>
-    <tr>
-      <td>Not Assigned</td>
-      <td>Not Assigned</td>
-      <td></td>
-      <td>Not Assigned</td>
-    </tr>
+    // File extensions to try
+    const extensions = ['jpg', 'png', 'webp'];
 
-    <tr>
-      <td class="lavender subject">Science – Q1</td>
-      <td class="blue subject">PE – Yard</td>
-      <td class="pink subject">Popsicles and Yearbooks – Terrace</td>
-      <td class="pink subject noon-release">RELEASED AT NOON 🌞</td>
-    </tr>
-    <tr>
-      <td>Not Assigned</td>
-      <td>Not Assigned</td>
-      <td>Not Assigned</td>
-      <td></td>
-      <td></td>
-      <td></td>
-    </tr>
+    // Load today's image
+    async function loadTodayFact() {
+      const dateStr = getTodayDateString();
 
-    <tr>
-      <td class="lavender subject">History – A102</td>
-      <td class="lavender subject">Music – F102</td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>Not Assigned</td>
-      <td>Not Assigned</td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-    </tr>
-  </table>
+      for (const ext of extensions) {
+        const url = `facts/${dateStr}.${ext}`;
+        try {
+          const res = await fetch(url, { method: 'HEAD' });
+          if (res.ok) {
+            todayEl.innerHTML = `<img src="${url}" alt="Math Fact for ${dateStr}">`;
+            return;
+          }
+        } catch (err) {
+          console.error(err);
+        }
+      }
+
+      todayEl.innerHTML = `<p>No math fact uploaded for today (${dateStr}).</p>`;
+    }
+
+    // Load archive (static dates)
+    const startDate = new Date("2024-01-01"); // adjust to your archive start
+    const today = new Date();
+
+    function formatDate(date) {
+      return date.toISOString().split("T")[0];
+    }
+
+    async function loadArchive() {
+      for (let d = new Date(startDate); d < today; d.setDate(d.getDate() + 1)) {
+        const dateStr = formatDate(d);
+        for (const ext of extensions) {
+          const url = `facts/${dateStr}.${ext}`;
+          try {
+            const res = await fetch(url, { method: 'HEAD' });
+            if (res.ok) {
+              const img = document.createElement('img');
+              img.src = url;
+              img.alt = `Fact for ${dateStr}`;
+              img.title = dateStr;
+              archiveEl.appendChild(img);
+              break;
+            }
+          } catch (e) {
+            console.warn(e);
+          }
+        }
+      }
+    }
+
+    loadTodayFact();
+    loadArchive();
+  </script>
 </body>
 </html>
