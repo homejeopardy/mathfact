@@ -169,7 +169,10 @@
     const darkToggle = document.getElementById("dark-toggle");
 
     const extensions = ['jpg', 'png', 'webp'];
-    const startDate = new Date("2024-01-01");
+    // Set the first date for archive (YYYY-MM-DD)
+    const ARCHIVE_START_DATE = "2025-06-11";
+    const startDate = new Date(ARCHIVE_START_DATE);
+
     const today = new Date();
     let archiveItems = [];
 
