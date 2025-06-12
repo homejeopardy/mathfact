@@ -169,7 +169,8 @@
     const submitFormLink = "https://forms.gle/YOUR_FORM_LINK";
     // END CONFIG
 
-    const today = new Date();
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const startDate = new Date(ARCHIVE_START_DATE);
     const archiveEl = document.getElementById("archive-grid");
     const todayEl = document.getElementById("today-fact");
